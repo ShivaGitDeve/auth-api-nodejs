@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import User from "../models/user.model.js";
+import  User  from "../models/user.model.js";
 
 const registerUser = async (req, res) => {
   try {
@@ -8,7 +8,7 @@ const registerUser = async (req, res) => {
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
-    const extingUser = await User.findOne({ where: { id } });
+    const extingUser = await User.findOne({ where: { email } });
     if (extingUser) {
       return res.status(409).json({ message: "User already exit" });
     }
@@ -22,9 +22,9 @@ const registerUser = async (req, res) => {
     return res.status(201).json({
       message: "User created succesfully",
       data: {
-        id: User.id,
-        name: User.name,
-        email: User.email,
+        id: createUser.id,
+        name: createUser.name,
+        email: createUser.email,
       },
     });
   } catch (error) {
@@ -33,4 +33,4 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+export { registerUser };

@@ -34,8 +34,6 @@ const registerUser = async (req, res) => {
   }
 };
 
-
-
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -71,4 +69,24 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser };
+const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user.id === id) {
+      return res.status(403).json({ message: "Admin cannot delete self" });
+    }
+    const findUser = await User.findByPk(id);
+    if (!findUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    await findUser.destroy();
+    return res.status(200).json({
+      message: "Succesfully delete ",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export { registerUser, loginUser, deleteUser };

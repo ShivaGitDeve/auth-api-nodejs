@@ -23,10 +23,18 @@ const proTect = async (req, res, next) => {
       attributes: { exclude: ["password"] },
     });
     next();
-
   } catch (error) {
     return res.status(401).json({ message: "Invalid Token" });
   }
 };
 
-export default proTect;
+const authorizeRole = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Acess denind" });
+    }
+    next();
+  };  
+};
+
+export { proTect, authorizeRole };

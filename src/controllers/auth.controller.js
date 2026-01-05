@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import Token from "../utils/generateAccessToken.js";
+import RefreshToken from "../utils/genrateRefreshTokens.js";
 
 const registerUser = async (req, res) => {
   try {
@@ -52,10 +53,18 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Password not matching" });
     }
 
-    const token = Token(user);
+    const accessToken = Token(user);
+    const refreshToken = RefreshToken(user);
+
+    await refreshToken.create({
+      token: refreshToken,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    });
     return res.status(200).json({
       message: "Login succesful",
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         name: user.name,

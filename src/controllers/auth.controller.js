@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import Token from "../utils/generateAccessToken.js";
 import RefreshToken from "../utils/genrateRefreshTokens.js";
+import RefreshTokenModel from "../models/refreshToken.model.js";
+import jwt from "jsonwebtoken";
 
 const registerUser = async (req, res) => {
   try {
@@ -98,4 +100,37 @@ const deleteUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, deleteUser };
+const refeshAT = async (req, res) => {
+  try {
+    const R_A_T =
+      req.headers.authorization?.startsWith("Bearer") &&
+      req.headers.authorization.split(" ")[1];
+    if (!R_A_T) {
+      return res.status(401).json({ message: "Refresh token missing" });
+    }
+
+    // verify refresh token
+    const decoded = jwt.verify(R_A_T, process.env.REFRESH_JWT_SECRET);
+
+    // check DB
+    const storedToken = await RefreshTokenModel.findOne({ where: { R_A_T } });
+
+    if (!storedToken) {
+      return res.status(401).json({ message: "Invalid Refresh Token" });
+    }
+
+    if (storedToken.expiresAt < new Date()) {
+      return res.status(401).json({ message: "Refresh Token Expired" });
+    }
+
+    const newAccessToken = Token({
+      id: decoded.id,
+      role: decoded.role,
+    });
+    return res.status(200).json({ accessToken: newAccessToken });
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid refresh token", error });
+  }
+};
+
+export { registerUser, loginUser, deleteUser, refeshAT };

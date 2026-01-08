@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import User from "../models/user.model.js";
 import Token from "../utils/generateAccessToken.js";
 import RefreshToken from "../utils/genrateRefreshTokens.js";
@@ -129,8 +130,42 @@ const refeshAT = async (req, res) => {
     });
     return res.status(200).json({ accessToken: newAccessToken });
   } catch (error) {
-    return res.status(401).json({ message: "Invalid refresh token(Server)", error });
+    return res
+      .status(401)
+      .json({ message: "Invalid refresh token(Server)", error });
   }
 };
 
-export { registerUser, loginUser, deleteUser, refeshAT };
+const forgotPswd = async (req, res) => {
+  try {
+    const { email } = req.body;
+    // if (!email) {
+    //   return res.status(401).json({ message: "Email not found" });
+    // }
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res
+        .status(200)
+        .json({ message: "If the email exists, a reset link has been sent" });
+    }
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    user.resetPaswrdToken = hashedToken;
+    user.resetPaswrdExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+    return res
+      .status(200)
+      .json({ message: "Password reset link sent", resetLink });
+  } catch (error) {
+    return res
+      .status(401)
+      .json({ message: "Invalid refresh token(Server)", error });
+  }
+};
+
+export { registerUser, loginUser, deleteUser, refeshAT, forgotPswd };

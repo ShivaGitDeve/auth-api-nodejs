@@ -5,6 +5,9 @@ import Token from "../utils/generateAccessToken.js";
 import RefreshToken from "../utils/genrateRefreshTokens.js";
 import RefreshTokenModel from "../models/refreshToken.model.js";
 import jwt from "jsonwebtoken";
+import { Op } from "sequelize";
+
+
 
 const registerUser = async (req, res) => {
   try {
@@ -37,6 +40,8 @@ const registerUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 const loginUser = async (req, res) => {
   try {
@@ -81,6 +86,8 @@ const loginUser = async (req, res) => {
   }
 };
 
+
+
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -100,6 +107,8 @@ const deleteUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 const refeshAT = async (req, res) => {
   try {
@@ -136,6 +145,8 @@ const refeshAT = async (req, res) => {
   }
 };
 
+
+
 const forgotPswd = async (req, res) => {
   try {
     const { email } = req.body;
@@ -168,4 +179,44 @@ const forgotPswd = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, deleteUser, refeshAT, forgotPswd };
+
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Token and New Password both are missing" });
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    // find user with valid token
+    const user = await User.findOne({
+      where: {
+        resetPaswrdToken: hashedToken,
+        resetPaswrdExpires: { [Op.get]: Date.now() },
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or expired reset token" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+
+    user.resetPaswrdToken = null;
+    user.resetPaswrdExpires = null;
+    await user.save();
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    return res
+      .status(401)
+      .json({ message: "Invalid refresh token(Server)", error });
+  }
+};
+
+export { registerUser, loginUser, deleteUser, refeshAT, forgotPswd, resetPassword };

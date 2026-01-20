@@ -1,14 +1,24 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/Auth-context";
 import "./login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(email, password);
+    if (!email && !password) return;
+    try {
+      await login(email, password);
+      navigate("/dashboard");
+    } catch (e) {
+      alert("Invalid credentials");
+    }
   };
 
   return (

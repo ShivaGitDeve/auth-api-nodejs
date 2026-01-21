@@ -6,6 +6,7 @@ import "./login.css";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -37,12 +38,22 @@ const Login = () => {
           />
 
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <span
+            onClick={() => setShowPassword(!showPassword)}
+            style={{
+             display:"flex",
+             flexDirection:"row-reverse",
+             cursor: "pointer"
+            }}
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </span>
 
           <button type="submit">Login</button>
         </form>

@@ -19,6 +19,7 @@ const Login = () => {
       navigate("/dashboard");
     } catch (e) {
       alert("Invalid credentials");
+      console.log(e);
     }
   };
 
@@ -47,9 +48,9 @@ const Login = () => {
           <span
             onClick={() => setShowPassword(!showPassword)}
             style={{
-             display:"flex",
-             flexDirection:"row-reverse",
-             cursor: "pointer"
+              display: "flex",
+              flexDirection: "row-reverse",
+              cursor: "pointer",
             }}
           >
             {showPassword ? "🙈" : "👁️"}

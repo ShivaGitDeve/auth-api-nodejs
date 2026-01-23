@@ -28,7 +28,7 @@ const User = sequelize.define(
       type: DataTypes.STRING,
     },
     resetPasswordExpires: {
-      type: DataTypes.STRING,
+      type: DataTypes.DATE,
     },
     role: {
       type: DataTypes.STRING,

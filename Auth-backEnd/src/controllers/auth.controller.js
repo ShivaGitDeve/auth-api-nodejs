@@ -62,17 +62,17 @@ const loginUser = async (req, res) => {
     }
 
     const accessToken = Token(user);
-    const refreshToken = RefreshToken(user);
+    const refreshTokenValue = RefreshToken(user);
 
-    await refreshToken.create({
-      token: refreshToken,
+    await RefreshTokenModel.create({
+      token: refreshTokenValue,
       userId: user.id,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+      expire: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     });
     return res.status(200).json({
       message: "Login succesful",
       accessToken,
-      refreshToken,
+      refreshTokenValue,
       user: {
         id: user.id,
         name: user.name,

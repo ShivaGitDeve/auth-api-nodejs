@@ -6,7 +6,7 @@ const RefreshToken = (user) => {
       id: user.id,
     },
     process.env.REFRESH_JWT_SECRET,
-    { expiresIn: REFRESH_TOKEN_EXPIRES }
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
   );
 };
 

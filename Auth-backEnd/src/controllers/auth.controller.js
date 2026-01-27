@@ -7,8 +7,6 @@ import RefreshTokenModel from "../models/refreshToken.model.js";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 
-
-
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -40,8 +38,6 @@ const registerUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
-
 
 const loginUser = async (req, res) => {
   try {
@@ -86,8 +82,6 @@ const loginUser = async (req, res) => {
   }
 };
 
-
-
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -107,8 +101,6 @@ const deleteUser = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
-
 
 const refeshAT = async (req, res) => {
   try {
@@ -145,8 +137,6 @@ const refeshAT = async (req, res) => {
   }
 };
 
-
-
 const forgotPswd = async (req, res) => {
   try {
     const { email } = req.body;
@@ -178,8 +168,6 @@ const forgotPswd = async (req, res) => {
       .json({ message: "Invalid refresh token(Server)", error });
   }
 };
-
-
 
 const resetPassword = async (req, res) => {
   try {
@@ -219,4 +207,31 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, deleteUser, refeshAT, forgotPswd, resetPassword };
+const logoutUser = async (req, res) => {
+  try {
+    const { RefreshToken } = req.body;
+    if (!RefreshToken) {
+      return res.status(400).json({ message: "No Refresh Token" });
+    }
+
+    await RefreshTokenModel.destroy({
+      where: { token: RefreshToken },
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Invalid refresh token(Server)", error });
+  }
+};
+
+export {
+  registerUser,
+  loginUser,
+  deleteUser,
+  refeshAT,
+  forgotPswd,
+  resetPassword,
+  logoutUser
+};

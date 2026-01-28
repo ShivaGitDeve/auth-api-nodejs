@@ -37,21 +37,30 @@ export const AuthProvider = ({ children }) => {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
           },
-        }
+        },
       );
 
       setAccessToken(res.data.accessToken);
     } catch (err) {
+      console.error(err);
       logout();
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setAccessToken(null);
-    localStorage.removeItem("refreshToken");
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout", {
+        refreshToken: localStorage.getItem("refreshToken"),
+      });
+    } catch (error) {
+      console.log("LogOut API failed ", error);
+    } finally {
+      setUser(null);
+      setAccessToken(null);
+      localStorage.removeItem("refreshToken");
+    }
   };
 
   return (

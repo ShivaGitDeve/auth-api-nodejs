@@ -68,7 +68,7 @@ const loginUser = async (req, res) => {
     return res.status(200).json({
       message: "Login succesful",
       accessToken,
-      refreshTokenValue,
+      refreshToken: refreshTokenValue,
       user: {
         id: user.id,
         name: user.name,
@@ -115,7 +115,9 @@ const refeshAT = async (req, res) => {
     const decoded = jwt.verify(R_A_T, process.env.REFRESH_JWT_SECRET);
 
     // check DB
-    const storedToken = await RefreshTokenModel.findOne({ where: { R_A_T } });
+    const storedToken = await RefreshTokenModel.findOne({
+      where: { token: R_A_T },
+    });
 
     if (!storedToken) {
       return res.status(401).json({ message: "Invalid Refresh Token" });
@@ -209,20 +211,20 @@ const resetPassword = async (req, res) => {
 
 const logoutUser = async (req, res) => {
   try {
-    const { RefreshToken } = req.body;
-    if (!RefreshToken) {
+    console.log("BODY:", req.body);
+
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
       return res.status(400).json({ message: "No Refresh Token" });
     }
-
     await RefreshTokenModel.destroy({
-      where: { token: RefreshToken },
+      where: { token: refreshToken },
     });
-
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     return res
       .status(500)
-      .json({ message: "Invalid refresh token(Server)", error });
+      .json({ message: "Server error during logout", error });
   }
 };
 
@@ -233,5 +235,5 @@ export {
   refeshAT,
   forgotPswd,
   resetPassword,
-  logoutUser
+  logoutUser,
 };

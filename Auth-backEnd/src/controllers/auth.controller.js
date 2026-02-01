@@ -6,6 +6,7 @@ import RefreshToken from "../utils/genrateRefreshTokens.js";
 import RefreshTokenModel from "../models/refreshToken.model.js";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
+import { userInfo } from "os";
 
 const registerUser = async (req, res) => {
   try {
@@ -127,11 +128,28 @@ const refeshAT = async (req, res) => {
       return res.status(401).json({ message: "Refresh Token Expired" });
     }
 
+    await RefreshTokenModel.destroy({
+      where: { token: R_A_T },
+    });
+
     const newAccessToken = Token({
       id: decoded.id,
       role: decoded.role,
     });
-    return res.status(200).json({ accessToken: newAccessToken });
+
+    const newRefreshToken = RefreshToken({
+      id: decoded.id,
+      role: decoded.role,
+    });
+
+    await RefreshTokenModel.create({
+      token: newRefreshToken,
+      userId: decoded.id,
+      expire: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+    return res
+      .status(200)
+      .json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error) {
     return res
       .status(401)

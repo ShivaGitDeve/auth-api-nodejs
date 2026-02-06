@@ -3,6 +3,7 @@ import cors from "cors";
 import route from "./routes/auth.routes.js";
 import adminRoute from "./routes/admin.routes.js";
 import errorHandler from "./middlewares/error.middleware.js";
+import "./jobs/refreshTokenClean.job.js"
 
 const app = express();
 

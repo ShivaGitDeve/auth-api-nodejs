@@ -121,7 +121,12 @@ const refeshAT = async (req, res) => {
     });
 
     if (!storedToken) {
-      return res.status(401).json({ message: "Invalid Refresh Token" });
+      await RefreshTokenModel.destroy({
+        where: { userId: decoded.id },
+      });
+      return res
+        .status(401)
+        .json({ message: "Refresh token reuse detected. Please login again." });
     }
 
     if (storedToken.expiresAt < new Date()) {

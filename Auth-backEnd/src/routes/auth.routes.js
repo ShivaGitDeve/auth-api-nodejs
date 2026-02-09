@@ -1,5 +1,12 @@
 import express from "express";
 import {
+  registerSchema,
+  loginSchema,
+  forgotPswdSchema,
+  resetPasswordSchema,
+  validate,
+} from "../validation/auth-validation.js";
+import {
   registerUser,
   loginUser,
   refeshAT,
@@ -15,14 +22,19 @@ import {
 
 const router = express.Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginLimiter, loginUser);
+router.post("/register", validate(registerSchema), registerUser);
+router.post("/login", validate(loginSchema), loginLimiter, loginUser);
 router.get("/profile", proTect, (req, res) => {
   res.status(200).json({ message: "Profile Data", user: req.user });
 });
 router.post("/refresh-token", refeshAT);
-router.post("/forgot-password", forgotLimiter, forgotPswd);
-router.post("/reset-password", resetPassword);
+router.post(
+  "/forgot-password",
+  validate(forgotPswdSchema),
+  forgotLimiter,
+  forgotPswd,
+);
+router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/logout", logoutUser);
 
 export default router;

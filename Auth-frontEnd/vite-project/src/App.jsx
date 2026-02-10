@@ -4,6 +4,8 @@ import ProtectedRoute from "./auth/Protected-route";
 import Dashboard from "./pages/dashboard/Dashboard";
 import ForgotPassword from "./pages/Password/Forgot-Password";
 import ResetPassword from "./pages/Password/Reset-Password";
+import RoleProtectedRoute from "./auth/RoleProtectedRoute";
+import Admin from "./pages/admin/Admin";
 import "./App.css";
 
 function App() {
@@ -14,6 +16,12 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
+        {/* Admin protected route */}
+        <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin" element={<Admin />} />
+        </Route>
+
+        {/* User protected route */}
         <Route
           path="/dashboard"
           element={

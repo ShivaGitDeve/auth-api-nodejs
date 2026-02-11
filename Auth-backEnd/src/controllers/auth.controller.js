@@ -12,9 +12,9 @@ const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    // if (!name || !email || !password) {
+    //   return res.status(400).json({ message: "All fields are required" });
+    // }
     const extingUser = await User.findOne({ where: { email } });
     if (extingUser) {
       return res.status(409).json({ message: "User already exit" });

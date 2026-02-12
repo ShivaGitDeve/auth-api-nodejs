@@ -7,6 +7,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -14,12 +15,15 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email && !password) return;
+    setLoading(true);
     try {
       await login(email, password);
       navigate("/dashboard");
     } catch (e) {
       alert("Invalid credentials");
       console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,7 +60,9 @@ const Login = () => {
             {showPassword ? "🙈" : "👁️"}
           </span>
 
-          <button type="submit">Login</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
         <p className="footer-text">

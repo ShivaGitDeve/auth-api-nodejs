@@ -5,10 +5,12 @@ const ResetPassword = () => {
   const [token, setToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!token || !newPassword) return;
+    setLoading(true);
     try {
       await api.post("/auth/reset-password", {
         token,
@@ -18,6 +20,8 @@ const ResetPassword = () => {
     } catch (error) {
       setMessage("Something went wrong");
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -36,7 +40,9 @@ const ResetPassword = () => {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
         />
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Resetting..." : "Reset Password"}
+        </button>
       </form>
       {message && <p>{message}</p>}
     </>

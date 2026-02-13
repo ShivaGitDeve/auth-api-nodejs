@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/Auth-context";
 import "./login.css";
@@ -63,10 +64,23 @@ const Login = () => {
           <button type="submit" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
+          <p style={{ textAlign: "center", marginTop: "8px" }}>
+            <Link
+              to="/forgot-password"
+              style={{
+                textDecoration: "none",
+                fontSize: "14px",
+                color: "#2563eb",
+                fontWeight: "500",
+              }}
+            >
+              Forgot Password?
+            </Link>
+          </p>
         </form>
 
-        <p className="footer-text">
-          Don’t have an account? <span>Sign Up</span>
+        <p>
+          Don’t have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </div>
     </div>

@@ -6,7 +6,8 @@ import RefreshToken from "../utils/genrateRefreshTokens.js";
 import RefreshTokenModel from "../models/refreshToken.model.js";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
-import { userInfo } from "os";
+import sendEmail from "../utils/sendEmail.js";
+// import { userInfo } from "os";
 
 const registerUser = async (req, res) => {
   try {
@@ -184,9 +185,12 @@ const forgotPswd = async (req, res) => {
     await user.save();
 
     const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
-    return res
-      .status(200)
-      .json({ message: "Password reset link sent", resetLink });
+    await sendEmail(
+      user.email,
+      "Password Reset Request",
+      `Click the link to reset your password: ${resetLink}`,
+    );
+    return res.status(200).json({ message: "Password reset link sent" });
   } catch (error) {
     return res
       .status(401)

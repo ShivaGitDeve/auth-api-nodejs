@@ -180,11 +180,11 @@ const forgotPswd = async (req, res) => {
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
-    user.resetPaswrdToken = hashedToken;
-    user.resetPaswrdExpires = Date.now() + 15 * 60 * 1000;
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
     await sendEmail(
       user.email,
       "Password Reset Request",
@@ -211,8 +211,8 @@ const resetPassword = async (req, res) => {
     // find user with valid token
     const user = await User.findOne({
       where: {
-        resetPaswrdToken: hashedToken,
-        resetPaswrdExpires: { [Op.get]: Date.now() },
+        resetPasswordToken: hashedToken,
+        resetPasswordExpires: { [Op.gt]: Date.now() },
       },
     });
 
@@ -225,8 +225,8 @@ const resetPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
 
-    user.resetPaswrdToken = null;
-    user.resetPaswrdExpires = null;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
     await user.save();
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {

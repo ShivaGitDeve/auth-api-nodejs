@@ -9,7 +9,7 @@ api.interceptors.request.use(
   (config) => {
     const accessToken = sessionStorage.getItem("accessToken");
     if (accessToken) {
-      config.headers.Authorization = `Bearer $(accessToken)`;
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
@@ -22,11 +22,15 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     // access token expired
+    const refreshToken = localStorage.getItem("refreshToken");
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      refreshToken
+    ) {
       originalRequest._retry = true;
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
         const res = await axios.post(
           "http://localhost:5000/api/auth/refresh-token",
           {},

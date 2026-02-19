@@ -10,7 +10,7 @@ const HomePage = () => {
     <div className="h-screen w-full bg-gradient-to-br from-indigo-600 via-purple-600 to-cyan-500 flex items-center justify-center">
       <div className="text-center text-white max-w-2xl">
         <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
-          Secure Authentication System
+          Secure Authentication System!
         </h1>
 
         <p className="text-lg md:text-xl opacity-90 mb-8">

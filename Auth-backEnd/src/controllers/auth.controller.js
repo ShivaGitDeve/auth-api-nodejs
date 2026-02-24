@@ -236,6 +236,29 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: "Both fields required" });
+    }
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ message: " User Not found!" });
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Current password incorrect" });
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+
+    user.refreshToken = null;
+    await user.save();
+
+    res.status(200).json({ message: "Password change succesfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
+
 const logoutUser = async (req, res) => {
   try {
     console.log("BODY:", req.body);
@@ -262,5 +285,6 @@ export {
   refeshAT,
   forgotPswd,
   resetPassword,
+  changePassword,
   logoutUser,
 };

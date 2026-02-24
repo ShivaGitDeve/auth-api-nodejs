@@ -6,6 +6,7 @@ import {
   resetPasswordSchema,
   validate,
 } from "../validation/auth-validation.js";
+import { changePassword } from "../controllers/auth.controller.js";
 import {
   registerUser,
   loginUser,
@@ -36,5 +37,6 @@ router.post(
 );
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/logout", logoutUser);
+router.post("/change-password", proTect, changePassword);
 
 export default router;

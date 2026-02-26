@@ -9,6 +9,24 @@ import { Op } from "sequelize";
 import sendEmail from "../utils/sendEmail.js";
 // import { userInfo } from "os";
 
+const getMe = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId, {
+      attributes: { exclude: ["password", "refreshToken"] },
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -279,6 +297,7 @@ const logoutUser = async (req, res) => {
 };
 
 export {
+  getMe,
   registerUser,
   loginUser,
   deleteUser,

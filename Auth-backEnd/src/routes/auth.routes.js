@@ -7,6 +7,7 @@ import {
   validate,
 } from "../validation/auth-validation.js";
 import { changePassword } from "../controllers/auth.controller.js";
+import { getMe } from "../controllers/auth.controller.js";
 import {
   registerUser,
   loginUser,
@@ -23,6 +24,7 @@ import {
 
 const router = express.Router();
 
+router.get("/me", proTect, getMe);
 router.post("/register", validate(registerSchema), registerUser);
 router.post("/login", validate(loginSchema), loginLimiter, loginUser);
 router.get("/profile", proTect, (req, res) => {

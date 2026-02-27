@@ -27,6 +27,46 @@ const getMe = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ["password", "refreshTokn"] },
+    });
+    res.status(200).json({ success: true, count: users.length, users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateUserRole = async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    if (!["user", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    user.role = role;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User role updated",
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -74,7 +114,7 @@ const loginUser = async (req, res) => {
     }
     const psdMatch = await bcrypt.compare(password, user.password);
     if (!psdMatch) {
-      return res.status(401).json({ message: "Password not matching" });
+      return res.status(401).json({ message: "Incorrect Password" });
     }
 
     const accessToken = Token(user);
@@ -105,7 +145,7 @@ const loginUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    if (req.user.id === id) {
+    if (req.user.id === Number(id)) {
       return res.status(403).json({ message: "Admin cannot delete self" });
     }
     const findUser = await User.findByPk(id);
@@ -298,6 +338,8 @@ const logoutUser = async (req, res) => {
 
 export {
   getMe,
+  getAllUsers,
+  updateUserRole,
   registerUser,
   loginUser,
   deleteUser,

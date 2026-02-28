@@ -7,6 +7,7 @@ import RefreshTokenModel from "../models/refreshToken.model.js";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 import sendEmail from "../utils/sendEmail.js";
+import logger from "../utils/logger.js";
 // import { userInfo } from "os";
 
 const getMe = async (req, res) => {
@@ -22,7 +23,7 @@ const getMe = async (req, res) => {
 
     res.status(200).json({ success: true, user });
   } catch (error) {
-    console.log(error);
+    logger.error(error.message);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -94,7 +95,7 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    logger.error(error.message);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -110,10 +111,12 @@ const loginUser = async (req, res) => {
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
+      logger.error(`Login failed - user not found: ${email}`);
       return res.status(401).json({ message: "Invalid credentials" });
     }
     const psdMatch = await bcrypt.compare(password, user.password);
     if (!psdMatch) {
+      logger.error(`Login failed - wrong password: ${email}`);
       return res.status(401).json({ message: "Incorrect Password" });
     }
 
@@ -137,7 +140,7 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error.message);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -153,11 +156,12 @@ const deleteUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     await findUser.destroy();
+    logger.info(`User deleted: ${findUser.email}`);
     return res.status(200).json({
       message: "Succesfully delete ",
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error.message);
     return res.status(500).json({ message: "Server error" });
   }
 };

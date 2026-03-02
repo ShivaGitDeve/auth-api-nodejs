@@ -4,11 +4,14 @@ import morgan from "morgan";
 import route from "./routes/auth.routes.js";
 import adminRoute from "./routes/admin.routes.js";
 import errorHandler from "./middlewares/error.middleware.js";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./config/swagger.js";
 import "./jobs/refreshTokenClean.job.js";
 
 const app = express();
 
 app.use(morgan("dev"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(cors());
 app.use(express.json());

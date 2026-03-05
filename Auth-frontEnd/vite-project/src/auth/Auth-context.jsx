@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
 
+    sessionStorage.setItem("accessToken", res.data.accessToken);
     setAccessToken(res.data.accessToken);
     setUser(res.data.user);
     localStorage.setItem("refreshToken", res.data.refreshToken);
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
           },
         },
       );
-
+      sessionStorage.setItem("accessToken", res.data.accessToken);
       setAccessToken(res.data.accessToken);
     } catch (err) {
       console.error(err);

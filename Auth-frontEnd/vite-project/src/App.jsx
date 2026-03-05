@@ -9,6 +9,7 @@ import RoleProtectedRoute from "./auth/RoleProtectedRoute";
 import Admin from "./pages/admin/Admin";
 import SignupPage from "./pages/login/Signup";
 import HomePage from "./pages/home/Home";
+import Profile from "./pages/home/Profile";
 import "./App.css";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <Toaster position="top-right" reverseOrder={false}></Toaster>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />

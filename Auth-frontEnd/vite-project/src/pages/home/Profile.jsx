@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import api from "../../api/axios"
 
 const Profile = () => {
-    console.log("PROFILE PAGE RENDER");
     const [user, setUser] = useState(null)
     useEffect(() => {
         const fetchUser = async () => {

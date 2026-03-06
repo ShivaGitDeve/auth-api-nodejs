@@ -10,6 +10,7 @@ import Admin from "./pages/admin/Admin";
 import SignupPage from "./pages/login/Signup";
 import HomePage from "./pages/home/Home";
 import Profile from "./pages/home/Profile";
+import ChangePassword from "./pages/Password/Change-Password";
 import "./App.css";
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/signup" element={<SignupPage />} />

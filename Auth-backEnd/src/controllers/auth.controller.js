@@ -31,7 +31,9 @@ const getMe = async (req, res) => {
 const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.findAll({
-      attributes: { exclude: ["password", "refreshTokn"] },
+      attributes: {
+        exclude: ["password", "resetPasswordToken", "resetPasswordExpires"],
+      },
     });
     res.status(200).json({ success: true, count: users.length, users });
   } catch (error) {
@@ -86,6 +88,14 @@ const registerUser = async (req, res) => {
       email,
       password: hashPassword,
     });
+
+    // welcome mail - signup fail nahi hona chahiye agar mail na jaye
+    sendEmail(
+      createUser.email,
+      "Welcome to Auth App",
+      `Hi ${createUser.name},\n\nYour account has been created successfully. You can now login at http://localhost:5173/login`,
+    ).catch((err) => logger.error(`Welcome mail failed: ${err.message}`));
+
     return res.status(201).json({
       message: "User created succesfully",
       data: {
@@ -148,7 +158,7 @@ const loginUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
-    if (req.user.id === Number(id)) {
+    if (String(req.user.id) === id) {
       return res.status(403).json({ message: "Admin cannot delete self" });
     }
     const findUser = await User.findByPk(id);
@@ -254,9 +264,10 @@ const forgotPswd = async (req, res) => {
     );
     return res.status(200).json({ message: "Password reset link sent" });
   } catch (error) {
+    logger.error(`Forgot password failed: ${error.message}`);
     return res
-      .status(401)
-      .json({ message: "Invalid refresh token(Server)", error });
+      .status(500)
+      .json({ message: "Failed to send reset email. Try again later." });
   }
 };
 

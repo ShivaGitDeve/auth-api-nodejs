@@ -11,17 +11,29 @@ import SignupPage from "./pages/login/Signup";
 import HomePage from "./pages/home/Home";
 import Profile from "./pages/home/Profile";
 import ChangePassword from "./pages/Password/Change-Password";
-import "./App.css";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
     <BrowserRouter>
-      <Toaster position="top-right" reverseOrder={false}></Toaster>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: "rgba(20, 20, 38, 0.85)",
+            color: "#e2e8f0",
+            border: "1px solid rgba(255,255,255,0.1)",
+            backdropFilter: "blur(16px)",
+            borderRadius: "14px",
+            fontSize: "14px",
+          },
+          success: { iconTheme: { primary: "#a78bfa", secondary: "#0b0b18" } },
+          error: { iconTheme: { primary: "#fb7185", secondary: "#0b0b18" } },
+        }}
+      />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/signup" element={<SignupPage />} />
@@ -31,7 +43,7 @@ function App() {
           <Route path="/admin" element={<Admin />} />
         </Route>
 
-        {/* User protected route */}
+        {/* User protected routes */}
         <Route
           path="/dashboard"
           element={
@@ -40,6 +52,23 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute>
+              <ChangePassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

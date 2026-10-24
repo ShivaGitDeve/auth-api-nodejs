@@ -1,89 +1,86 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { FiArrowRight, FiLock, FiMail } from "react-icons/fi";
+import toast from "react-hot-toast";
 import { useAuth } from "../../auth/Auth-context";
-import "./login.css";
+import AuthLayout from "../../components/AuthLayout";
+import { Button, Input } from "../../components/ui";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
+
+  if (user) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email && !password) return;
+    if (!email || !password) return;
     setLoading(true);
     try {
-      await login(email, password);
+      const loggedIn = await login(email, password);
+      toast.success(`Welcome back, ${loggedIn.name}!`);
       navigate("/dashboard");
     } catch (e) {
-      alert("Invalid credentials");
-      console.log(e);
+      toast.error(e.response?.data?.message || "Invalid credentials");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2>Welcome Back! </h2>
-        <p className="subtitle">Login to your account</p>
-
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
+    <AuthLayout
+      title="Welcome back"
+      subtitle="Sign in to continue to your dashboard."
+      footer={
+        <>
+          Don’t have an account?{" "}
+          <Link to="/signup" className="font-semibold text-violet-300 transition hover:text-white">
+            Create one
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Input
+          label="Email"
+          icon={FiMail}
+          type="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
+          required
+        />
+        <div>
+          <Input
+            label="Password"
+            icon={FiLock}
+            type="password"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
             required
           />
-          <span
-            onClick={() => setShowPassword(!showPassword)}
-            style={{
-              display: "flex",
-              flexDirection: "row-reverse",
-              cursor: "pointer",
-            }}
-          >
-            {showPassword ? "🙈" : "👁️"}
-          </span>
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-          <p style={{ textAlign: "center", marginTop: "8px" }}>
+          <div className="mt-2 text-right">
             <Link
               to="/forgot-password"
-              style={{
-                textDecoration: "none",
-                fontSize: "14px",
-                color: "#2563eb",
-                fontWeight: "500",
-              }}
+              className="text-xs font-medium text-slate-400 transition hover:text-violet-300"
             >
-              Forgot Password?
+              Forgot password?
             </Link>
-          </p>
-        </form>
+          </div>
+        </div>
 
-        <p>
-          Don’t have an account? <Link to="/signup">Sign Up</Link>
-        </p>
-      </div>
-    </div>
+        <Button type="submit" loading={loading} loadingText="Signing in..." className="w-full">
+          Sign in <FiArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+        </Button>
+      </form>
+    </AuthLayout>
   );
 };
 

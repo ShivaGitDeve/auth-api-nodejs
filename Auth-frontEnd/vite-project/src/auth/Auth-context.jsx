@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
     setAccessToken(res.data.accessToken);
     setUser(res.data.user);
     localStorage.setItem("refreshToken", res.data.refreshToken);
+    return res.data.user;
   };
 
   const refreshAccessToken = async () => {
@@ -41,7 +42,12 @@ export const AuthProvider = ({ children }) => {
         },
       );
       sessionStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
       setAccessToken(res.data.accessToken);
+
+      // reload ke baad user data wapas lao, warna protected routes login par bhej dete
+      const me = await api.get("/auth/me");
+      setUser(me.data.user);
     } catch (err) {
       console.error(err);
       logout();
@@ -61,6 +67,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setAccessToken(null);
       localStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("accessToken");
     }
   };
 

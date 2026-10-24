@@ -41,6 +41,8 @@ api.interceptors.response.use(
           },
         );
         sessionStorage.setItem("accessToken", res.data.accessToken);
+        // backend refresh token rotate karta hai, naya wala save karna zaroori hai
+        localStorage.setItem("refreshToken", res.data.refreshToken);
 
         originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
 

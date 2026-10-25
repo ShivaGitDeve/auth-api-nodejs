@@ -11,7 +11,7 @@ const AppShell = ({ children }) => {
   const links = [
     { to: "/dashboard", label: "Dashboard", icon: FiGrid },
     { to: "/profile", label: "Profile", icon: FiUser },
-    { to: "/change-password", label: "Security", icon: FiLock },
+    { to: "/security", label: "Security", icon: FiLock },
     ...(user?.role === "admin" ? [{ to: "/admin", label: "Admin", icon: FiShield }] : []),
   ];
 

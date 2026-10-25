@@ -12,6 +12,7 @@ import HomePage from "./pages/home/Home";
 import Profile from "./pages/home/Profile";
 import ChangePassword from "./pages/Password/Change-Password";
 import NotFound from "./pages/NotFound";
+import Security from "./pages/security/Security";
 
 function App() {
   return (
@@ -65,6 +66,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ChangePassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/security"
+          element={
+            <ProtectedRoute>
+              <Security />
             </ProtectedRoute>
           }
         />

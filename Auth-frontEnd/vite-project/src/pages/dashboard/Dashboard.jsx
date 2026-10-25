@@ -110,7 +110,7 @@ const Dashboard = () => {
           ) : (
             <ActionCard to="/forgot-password" icon={FiKey} title="Recovery" desc="Reset via email if you forget." delay={560} />
           )}
-          <ActionCard to="/change-password" icon={FiShield} title="Security tips" desc="Best practices for a safe account." delay={640} />
+          <ActionCard to="/security" icon={FiShield} title="Security center" desc="Session details, protections and tips." delay={640} />
         </div>
 
         <Card className="animate-fade-up" style={{ animationDelay: "500ms" }}>

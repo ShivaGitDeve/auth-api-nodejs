@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiCheckCircle, FiKey, FiLock, FiShield } from "react-icons/fi";
 import toast from "react-hot-toast";
 import api from "../../api/axios";
+import { useAuth } from "../../auth/Auth-context";
 import AppShell from "../../components/AppShell";
 import { Button, Card, Input, PasswordStrength } from "../../components/ui";
 
@@ -17,6 +19,8 @@ const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,10 +34,10 @@ const ChangePassword = () => {
         currentPassword,
         newPassword,
       });
-      toast.success("Password updated successfully");
-      setcurrentPassword("");
-      setNewPassword("");
-      setConfirm("");
+      // backend ne saare sessions revoke kar diye - naye password se dobara login
+      toast.success("Password updated. Please sign in again.");
+      await logout();
+      navigate("/login");
     } catch (error) {
       toast.error(error.response?.data?.message || "Error updating password");
     } finally {

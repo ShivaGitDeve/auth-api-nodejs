@@ -1,7 +1,10 @@
 import axios from "axios";
 
+// .env.local mein VITE_API_URL set karke badal sakte ho
+export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/+$/, "");
+
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: API_URL,
 });
 
 // Request interceptor (attach access token)
@@ -32,7 +35,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/auth/refresh-token",
+          `${API_URL}/auth/refresh-token`,
           {},
           {
             headers: {

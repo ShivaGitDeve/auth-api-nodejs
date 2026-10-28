@@ -17,7 +17,7 @@ const Admin = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await api.get("/auth/users");
+      const res = await api.get("/admin/users");
       setUsers(res.data.users);
     } catch (error) {
       toast.error(error.response?.data?.message || "Could not load users");
@@ -42,7 +42,7 @@ const Admin = () => {
     const role = u.role === "admin" ? "user" : "admin";
     setBusyId(u.id);
     try {
-      await api.patch(`/auth/users/${u.id}/role`, { role });
+      await api.patch(`/admin/users/${u.id}/role`, { role });
       setUsers((list) => list.map((x) => (x.id === u.id ? { ...x, role } : x)));
       toast.success(`${u.name} is now ${role}`);
     } catch (error) {
@@ -55,7 +55,7 @@ const Admin = () => {
   const deleteUser = async (u) => {
     setBusyId(u.id);
     try {
-      await api.delete(`/auth/users/${u.id}`);
+      await api.delete(`/admin/users/${u.id}`);
       setUsers((list) => list.filter((x) => x.id !== u.id));
       toast.success(`${u.name} deleted`);
     } catch (error) {

@@ -6,12 +6,12 @@ import {
   resetPasswordSchema,
   validate,
 } from "../validation/auth-validation.js";
-import { changePassword, deleteUser } from "../controllers/auth.controller.js";
+import { changePassword, getMe } from "../controllers/auth.controller.js";
 import {
-  getMe,
-  getAllUsers,
+  getUsers,
   updateUserRole,
-} from "../controllers/auth.controller.js";
+  deleteUser,
+} from "../controllers/admin.controller.js";
 import {
   registerUser,
   loginUser,
@@ -31,7 +31,8 @@ const router = express.Router();
 router.get("/me", proTect, getMe);
 
 // ------admin only api------
-router.get("/users", proTect, authorizeRole("admin"), getAllUsers);
+// Deprecated aliases: asli routes /api/admin/* mein hain, handlers same hain
+router.get("/users", proTect, authorizeRole("admin"), getUsers);
 router.delete("/users/:id", proTect, authorizeRole("admin"), deleteUser);
 router.patch(
   "/users/:id/role",

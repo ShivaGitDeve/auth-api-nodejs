@@ -8,6 +8,8 @@ import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 import sendEmail from "../utils/sendEmail.js";
 import logger from "../utils/logger.js";
+import config from "../config/env.js";
+import { SAFE_USER_ATTRIBUTES } from "../utils/userAttributes.js";
 // import { userInfo } from "os";
 
 const getMe = async (req, res) => {
@@ -15,7 +17,7 @@ const getMe = async (req, res) => {
     const userId = req.user.id;
 
     const user = await User.findByPk(userId, {
-      attributes: { exclude: ["password", "refreshToken"] },
+      attributes: SAFE_USER_ATTRIBUTES,
     });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -25,48 +27,6 @@ const getMe = async (req, res) => {
   } catch (error) {
     logger.error(error.message);
     return res.status(500).json({ message: "Server error" });
-  }
-};
-
-const getAllUsers = async (req, res, next) => {
-  try {
-    const users = await User.findAll({
-      attributes: {
-        exclude: ["password", "resetPasswordToken", "resetPasswordExpires"],
-      },
-    });
-    res.status(200).json({ success: true, count: users.length, users });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const updateUserRole = async (req, res, next) => {
-  try {
-    const { role } = req.body;
-    if (!["user", "admin"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-
-    const user = await User.findByPk(req.params.id);
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
-    user.role = role;
-    await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: "User role updated",
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    next(error);
   }
 };
 
@@ -87,13 +47,15 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashPassword,
+      // public signup se kabhi admin nahi ban sakte
+      role: "user",
     });
 
     // welcome mail - signup fail nahi hona chahiye agar mail na jaye
     sendEmail(
       createUser.email,
       "Welcome to Auth App",
-      `Hi ${createUser.name},\n\nYour account has been created successfully. You can now login at http://localhost:5173/login`,
+      `Hi ${createUser.name},\n\nYour account has been created successfully. You can now login at ${config.frontendUrl}/login`,
     ).catch((err) => logger.error(`Welcome mail failed: ${err.message}`));
 
     return res.status(201).json({
@@ -129,6 +91,9 @@ const loginUser = async (req, res) => {
       logger.error(`Login failed - wrong password: ${email}`);
       return res.status(401).json({ message: "Incorrect Password" });
     }
+    if (user.isActive === false) {
+      return res.status(403).json({ message: "Account is disabled" });
+    }
 
     const accessToken = Token(user);
     const refreshTokenValue = RefreshToken(user);
@@ -148,27 +113,6 @@ const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
       },
-    });
-  } catch (error) {
-    logger.error(error.message);
-    return res.status(500).json({ message: "Server error" });
-  }
-};
-
-const deleteUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (String(req.user.id) === id) {
-      return res.status(403).json({ message: "Admin cannot delete self" });
-    }
-    const findUser = await User.findByPk(id);
-    if (!findUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    await findUser.destroy();
-    logger.info(`User deleted: ${findUser.email}`);
-    return res.status(200).json({
-      message: "Succesfully delete ",
     });
   } catch (error) {
     logger.error(error.message);
@@ -202,7 +146,9 @@ const refeshAT = async (req, res) => {
         .json({ message: "Refresh token reuse detected. Please login again." });
     }
 
-    if (storedToken.expiresAt < new Date()) {
+    // DB column ka naam "expire" hai
+    if (storedToken.expire < new Date()) {
+      await storedToken.destroy();
       return res.status(401).json({ message: "Refresh Token Expired" });
     }
 
@@ -256,7 +202,7 @@ const forgotPswd = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+    const resetLink = `${config.frontendUrl}/reset-password?token=${resetToken}`;
     await sendEmail(
       user.email,
       "Password Reset Request",
@@ -301,6 +247,10 @@ const resetPassword = async (req, res) => {
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
     await user.save();
+
+    // password reset ke baad saare purane sessions band
+    await RefreshTokenModel.destroy({ where: { userId: user.id } });
+
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
     return res
@@ -322,9 +272,10 @@ const changePassword = async (req, res) => {
       return res.status(400).json({ message: "Current password incorrect" });
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-
-    user.refreshToken = null;
     await user.save();
+
+    // saare devices ke refresh tokens hata do - sab jagah dobara login karna hoga
+    await RefreshTokenModel.destroy({ where: { userId: user.id } });
 
     res.status(200).json({ message: "Password change succesfully" });
   } catch (error) {
@@ -353,11 +304,8 @@ const logoutUser = async (req, res) => {
 
 export {
   getMe,
-  getAllUsers,
-  updateUserRole,
   registerUser,
   loginUser,
-  deleteUser,
   refeshAT,
   forgotPswd,
   resetPassword,

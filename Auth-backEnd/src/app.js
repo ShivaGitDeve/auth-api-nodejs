@@ -6,22 +6,24 @@ import adminRoute from "./routes/admin.routes.js";
 import errorHandler from "./middlewares/error.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
-import "./jobs/refreshTokenClean.job.js";
+import config from "./config/env.js";
+import "./models/index.js";
 
 const app = express();
 
 app.use(morgan("dev"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use(cors());
+app.use(cors({ origin: config.corsOrigins }));
 app.use(express.json());
 
 app.use("/api/admin", adminRoute);
 app.use("/api/auth", route);
 
-app.use(errorHandler);
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "Auth API is running" });
 });
+
+app.use(errorHandler);
 
 export default app;

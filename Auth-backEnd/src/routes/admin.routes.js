@@ -1,11 +1,20 @@
 import express from "express";
-import { getUsers} from "../controllers/admin.controller.js";
+import {
+  getUsers,
+  updateUserRole,
+  deleteUser,
+} from "../controllers/admin.controller.js";
 import { proTect, authorizeRole } from "../middlewares/auth.middleware.js";
-import { deleteUser } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.get("/users", proTect, authorizeRole("admin"), getUsers);
-router.delete("/user/:id", proTect, authorizeRole("admin"), deleteUser);
+router.use(proTect, authorizeRole("admin"));
+
+router.get("/users", getUsers);
+router.patch("/users/:id/role", updateUserRole);
+router.delete("/users/:id", deleteUser);
+
+// purana singular path - backward compatibility ke liye
+router.delete("/user/:id", deleteUser);
 
 export default router;

@@ -5,8 +5,15 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "prestart": "npm run db:migrate",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "predev": "npm run db:migrate",
+    "dev": "nodemon src/server.js",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:status": "sequelize-cli db:migrate:status",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo",
+    "db:migration:new": "sequelize-cli migration:generate --migrations-path db/migrations --name",
+    "test": "node --test --test-concurrency=1 --import ./test/setup.js \"test/**/*.test.js\""
   },
   "keywords": [],
   "author": "",
@@ -33,6 +40,7 @@
     "winston": "^3.19.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "sequelize-cli": "^6.6.5"
   }
 }

@@ -4,7 +4,10 @@ export const registerSchema = Joi.object({
   name: Joi.string().min(2).max(10).required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(7).required(),
-  role: Joi.string().valid("user", "admin").optional()
+  // role sirf admin panel se set hota hai, signup se nahi
+  role: Joi.forbidden().messages({
+    "any.unknown": "Role cannot be set during signup",
+  }),
 });
 
 export const loginSchema = Joi.object({

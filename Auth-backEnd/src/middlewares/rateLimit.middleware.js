@@ -10,6 +10,18 @@ export const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// invitation emails ka spam rokne ke liye (per IP)
+export const inviteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: {
+    message: "Too many invitations sent. Please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => process.env.NODE_ENV === "test",
+});
+
 export const forgotLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     max:5,

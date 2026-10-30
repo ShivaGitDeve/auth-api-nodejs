@@ -7,9 +7,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    const tables = (await queryInterface.showAllTables()).map((t) =>
-      typeof t === "string" ? t : t.tableName,
-    );
+    // current schema (search_path) mein check karo - showAllTables hamesha "public" dekhta hai
+    const exists = async (name) => {
+      const [[row]] = await queryInterface.sequelize.query(
+        "SELECT to_regclass(current_schema() || '.' || quote_ident(:name)) IS NOT NULL AS found",
+        { replacements: { name } },
+      );
+      return row.found;
+    };
+    const tables = [];
+    for (const name of ["users", "RefreshTokens"]) {
+      if (await exists(name)) tables.push(name);
+    }
 
     if (!tables.includes("users")) {
       await queryInterface.createTable("users", {

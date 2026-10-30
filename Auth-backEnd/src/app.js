@@ -3,6 +3,8 @@ import cors from "cors";
 import morgan from "morgan";
 import route from "./routes/auth.routes.js";
 import adminRoute from "./routes/admin.routes.js";
+import workspaceRoute from "./routes/workspace.routes.js";
+import invitationRoute from "./routes/invitation.routes.js";
 import errorHandler from "./middlewares/error.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
@@ -19,6 +21,8 @@ app.use(express.json());
 
 app.use("/api/admin", adminRoute);
 app.use("/api/auth", route);
+app.use("/api/workspaces", workspaceRoute);
+app.use("/api/invitations", invitationRoute);
 
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, message: "Auth API is running" });

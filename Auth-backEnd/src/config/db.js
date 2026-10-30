@@ -9,6 +9,10 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
     logging: false,
+    // optional: alag Postgres schema (integration tests isse use karte hain)
+    dialectOptions: process.env.DB_SCHEMA
+      ? { options: `-c search_path=${process.env.DB_SCHEMA}` }
+      : {},
   }
 );
 

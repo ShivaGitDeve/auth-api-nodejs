@@ -10,6 +10,11 @@ const base = {
   dialect: process.env.DB_DIALECT || "postgres",
   logging: false,
   migrationStorageTableName: "SequelizeMeta",
+  // optional: alag Postgres schema (integration tests isse use karte hain)
+  ...(process.env.DB_SCHEMA && { migrationStorageTableSchema: process.env.DB_SCHEMA }),
+  dialectOptions: process.env.DB_SCHEMA
+    ? { options: `-c search_path=${process.env.DB_SCHEMA}` }
+    : {},
 };
 
 module.exports = {

@@ -13,6 +13,13 @@ import Profile from "./pages/home/Profile";
 import ChangePassword from "./pages/Password/Change-Password";
 import NotFound from "./pages/NotFound";
 import Security from "./pages/security/Security";
+import Workspaces from "./pages/workspaces/Workspaces";
+import WorkspaceDetails from "./pages/workspaces/WorkspaceDetails";
+import AcceptInvitation from "./pages/invitations/AcceptInvitation";
+import Teams from "./pages/teams/Teams";
+import TeamDetails from "./pages/teams/TeamDetails";
+import Projects from "./pages/projects/Projects";
+import ProjectDetails from "./pages/projects/ProjectDetails";
 
 function App() {
   return (
@@ -38,6 +45,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/signup" element={<SignupPage />} />
+        {/* public: login ke bina bhi invitation dikhta hai */}
+        <Route path="/invitations/accept" element={<AcceptInvitation />} />
 
         {/* Admin protected route */}
         <Route element={<RoleProtectedRoute allowedRoles={["admin"]} />}>
@@ -74,6 +83,54 @@ function App() {
           element={
             <ProtectedRoute>
               <Security />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workspaces"
+          element={
+            <ProtectedRoute>
+              <Workspaces />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workspaces/:workspaceId"
+          element={
+            <ProtectedRoute>
+              <WorkspaceDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workspaces/:workspaceId/teams"
+          element={
+            <ProtectedRoute>
+              <Teams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workspaces/:workspaceId/teams/:teamId"
+          element={
+            <ProtectedRoute>
+              <TeamDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workspaces/:workspaceId/projects"
+          element={
+            <ProtectedRoute>
+              <Projects />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/workspaces/:workspaceId/projects/:projectId"
+          element={
+            <ProtectedRoute>
+              <ProjectDetails />
             </ProtectedRoute>
           }
         />

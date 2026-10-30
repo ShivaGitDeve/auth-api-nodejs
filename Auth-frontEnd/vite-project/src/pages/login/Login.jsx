@@ -1,20 +1,24 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { FiArrowRight, FiLock, FiMail } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { useAuth } from "../../auth/Auth-context";
 import AuthLayout from "../../components/AuthLayout";
 import { Button, Input } from "../../components/ui";
+import { authQuery, safeNext } from "../../workspace/pendingInvite";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [searchParams] = useSearchParams();
+  // ?next= (sirf app ke andar ke paths) - jaise invitation accept page par wapas jaana
+  const next = safeNext(searchParams.get("next"));
+  const [email, setEmail] = useState(searchParams.get("email") || "");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to={next || "/dashboard"} replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +27,7 @@ const Login = () => {
     try {
       const loggedIn = await login(email, password);
       toast.success(`Welcome back, ${loggedIn.name}!`);
-      navigate("/dashboard");
+      navigate(next || "/dashboard");
     } catch (e) {
       toast.error(e.response?.data?.message || "Invalid credentials");
     } finally {
@@ -38,7 +42,10 @@ const Login = () => {
       footer={
         <>
           Don’t have an account?{" "}
-          <Link to="/signup" className="font-semibold text-violet-300 transition hover:text-white">
+          <Link
+            to={`/signup${authQuery({ next, email: searchParams.get("email") })}`}
+            className="font-semibold text-violet-300 transition hover:text-white"
+          >
             Create one
           </Link>
         </>

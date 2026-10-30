@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FiArrowRight, FiLock, FiMail, FiUser } from "react-icons/fi";
 import toast from "react-hot-toast";
 import api from "../../api/axios";
 import AuthLayout from "../../components/AuthLayout";
 import { Button, Input, PasswordStrength } from "../../components/ui";
+import { authQuery, safeNext } from "../../workspace/pendingInvite";
 
 const SignupPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // invitation se aaye to signup ke baad login -> wapas accept page
+  const next = safeNext(searchParams.get("next"));
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
+    email: searchParams.get("email") || "",
     password: "",
     confirm: "",
   });
@@ -35,7 +39,7 @@ const SignupPage = () => {
       const { name, email, password } = formData;
       await api.post("/auth/register", { name, email, password });
       toast.success("Account created! Check your inbox for a welcome mail.");
-      navigate("/login");
+      navigate(`/login${authQuery({ next, email })}`);
     } catch (error) {
       const data = error.response?.data;
       toast.error(data?.error?.[0] || data?.message || "Registration failed");
@@ -51,7 +55,10 @@ const SignupPage = () => {
       footer={
         <>
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-violet-300 transition hover:text-white">
+          <Link
+            to={`/login${authQuery({ next, email: searchParams.get("email") })}`}
+            className="font-semibold text-violet-300 transition hover:text-white"
+          >
             Sign in
           </Link>
         </>
